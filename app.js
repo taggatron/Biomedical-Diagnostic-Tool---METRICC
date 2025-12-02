@@ -233,10 +233,22 @@ function el(tag, attrs = {}, ...children) {
   return node;
 }
 
+// Simple Fisher-Yates shuffle that returns a new shuffled array
+function shuffled(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function initSymptoms() {
   const list = document.getElementById("symptom-list");
   list.innerHTML = "";
-  SYMPTOMS.forEach((name) => {
+  // render symptoms in a random order each time
+  const order = shuffled(SYMPTOMS);
+  order.forEach((name) => {
     const btn = el(
       "button",
       {
