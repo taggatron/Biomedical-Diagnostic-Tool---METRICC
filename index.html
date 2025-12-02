@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Diagnostic Tool — Surgical Sieve (⭐ METRICC)</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>Diagnostic Tool</h1>
+      <p class="subtitle">Drag a symptom onto the canvas to get ⭐ METRICC suggestions</p>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar" aria-label="Symptoms">
+        <h2>Symptoms</h2>
+        <div id="symptom-list" class="symptom-list" aria-describedby="symptom-help"></div>
+        <p id="symptom-help" class="assist-text">Drag any symptom button onto the canvas.</p>
+      </aside>
+
+      <section class="workspace">
+        <div id="canvas" class="canvas" role="region" aria-label="Canvas" aria-dropeffect="copy">
+          <div class="canvas-empty">
+            <span>Drag symptoms here</span>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="clear-all" class="btn secondary" type="button" title="Clear canvas and results">Clear All</button>
+        </div>
+
+        <section id="results" class="results" aria-live="polite" aria-busy="false">
+          <div class="results-empty">Drop a symptom to see ⭐ METRICC suggestions here.</div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p class="disclaimer">For educational use only. Not medical advice.</p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
