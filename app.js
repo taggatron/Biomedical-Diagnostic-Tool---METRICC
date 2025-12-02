@@ -12,6 +12,11 @@ const SYMPTOMS = [
   "Diarrhea",
   "Rash",
   "Fatigue",
+  "Seizures",
+  "Sudden Weight Loss",
+  "Swollen Ankles",
+  "Itchy Skin",
+  "Painful Urination",
 ];
 
 const ORDER = [
@@ -105,10 +110,113 @@ const KB = {
     Infection: ["Mononucleosis", "Chronic infections"],
     "Congenital/Cancer": ["Congenital heart disease", "Cancer"],
   },
+  "Seizures": {
+    Metabolic: ["Hypoglycemia", "Hyponatremia", "Uremia"],
+    Environmental: ["Alcohol withdrawal", "Toxin/stimulant exposure"],
+    Technique: ["Medication-induced (tramadol/bupropion)", "Post-op scar focus"],
+    Reactive: ["Autoimmune encephalitis"],
+    Infection: ["Meningitis", "Encephalitis"],
+    "Congenital/Cancer": ["Idiopathic epilepsy", "Brain tumor", "AV malformation"],
+  },
+  "Sudden Weight Loss": {
+    Metabolic: ["Hyperthyroidism", "Diabetes mellitus", "Malabsorption"],
+    Environmental: ["Poor intake/depression", "Substance use"],
+    Technique: ["Medication effect (stimulants)", "Post-surgical catabolism"],
+    Reactive: ["Chronic inflammatory disease", "Celiac disease (autoimmune)"],
+    Infection: ["Tuberculosis", "HIV"],
+    "Congenital/Cancer": ["Malignancy"],
+  },
+  "Swollen Ankles": {
+    Metabolic: ["Heart failure", "Renal failure/nephrotic syndrome", "Cirrhosis"],
+    Environmental: ["Prolonged standing", "High-salt diet"],
+    Technique: ["Calcium channel blocker edema", "IV fluid overload"],
+    Reactive: ["Allergic angioedema"],
+    Infection: ["Cellulitis"],
+    "Congenital/Cancer": ["Lymphatic obstruction by tumor", "Congenital heart disease"],
+  },
+  "Itchy Skin": {
+    Metabolic: ["Cholestasis", "Uremia", "Thyroid disease"],
+    Environmental: ["Contact dermatitis exposure", "Dry skin/over-washing"],
+    Technique: ["Drug eruption", "Dialysis-related pruritus"],
+    Reactive: ["Atopic dermatitis", "Psoriasis"],
+    Infection: ["Scabies", "Tinea"],
+    "Congenital/Cancer": ["Hodgkin lymphoma", "Polycythemia vera"],
+  },
+  "Painful Urination": {
+    Metabolic: ["Urolithiasis (kidney stones)"],
+    Environmental: ["Dehydration", "Sexual activity exposure"],
+    Technique: ["Catheter-associated irritation/UTI", "Chemical irritants"],
+    Reactive: ["Interstitial cystitis"],
+    Infection: ["Cystitis", "Urethritis (STI)", "Pyelonephritis (with fever)"],
+    "Congenital/Cancer": ["Prostate disease", "Urothelial cancer"],
+  },
 };
 
 // Track currently selected symptoms on the canvas
 const selectedSymptoms = new Set();
+
+// Rules to enrich the combined card when certain symptom combinations occur
+const COMBO_RULES = [
+  {
+    symptoms: ["Fever", "Rash"],
+    adds: {
+      Infection: ["Measles", "Scarlet fever"],
+      Reactive: ["Kawasaki disease"],
+      Technique: ["Drug reaction (DRESS)"]
+    },
+  },
+  {
+    symptoms: ["Fever", "Seizures"],
+    adds: {
+      Infection: ["Meningitis/Encephalitis"],
+      Reactive: ["Autoimmune encephalitis"],
+      Technique: ["Post-vaccination febrile seizure"],
+    },
+  },
+  {
+    symptoms: ["Sudden Weight Loss", "Cough"],
+    adds: {
+      Infection: ["Tuberculosis"],
+      Metabolic: ["Hyperthyroidism"],
+      "Congenital/Cancer": ["Lung cancer"],
+    },
+  },
+  {
+    symptoms: ["Sudden Weight Loss", "Diarrhea"],
+    adds: {
+      Reactive: ["Inflammatory bowel disease"],
+      Metabolic: ["Celiac disease (malabsorption)"],
+      Infection: ["Chronic parasitic infection"],
+    },
+  },
+  {
+    symptoms: ["Swollen Ankles", "Shortness of Breath"],
+    adds: {
+      Metabolic: ["Heart failure", "Pulmonary hypertension"],
+      Technique: ["IV fluid overload"],
+    },
+  },
+  {
+    symptoms: ["Painful Urination", "Fever"],
+    adds: {
+      Infection: ["Pyelonephritis"],
+      Technique: ["Catheter-associated UTI"],
+    },
+  },
+  {
+    symptoms: ["Painful Urination", "Abdominal Pain"],
+    adds: {
+      Metabolic: ["Urolithiasis (kidney stones)"],
+      Infection: ["Cystitis"],
+    },
+  },
+  {
+    symptoms: ["Itchy Skin", "Swollen Ankles"],
+    adds: {
+      Metabolic: ["Chronic liver disease (cirrhosis) with edema"],
+    },
+  },
+];
 
 function el(tag, attrs = {}, ...children) {
   const node = document.createElement(tag);
@@ -142,7 +250,7 @@ function initSymptoms() {
           if (e.key === "Enter" || e.key === " ") {
             // Keyboard users: send to canvas directly
             addToCanvas(name);
-            renderSieve(name);
+            renderAllSieve();
           }
         },
       },
@@ -225,6 +333,16 @@ function renderAllSieve() {
       ORDER.forEach((cat) => {
         const items = d[cat] || [];
         combined[cat].push(...items);
+      });
+    });
+    // Apply combo rules to enrich combined suggestions
+    const sel = new Set(selectedSymptoms);
+    COMBO_RULES.forEach((rule) => {
+      const match = rule.symptoms.every((s) => sel.has(s));
+      if (!match) return;
+      Object.entries(rule.adds).forEach(([cat, arr]) => {
+        if (!combined[cat]) combined[cat] = [];
+        combined[cat].push(...arr);
       });
     });
     const combinedCard = buildSieveCard(
