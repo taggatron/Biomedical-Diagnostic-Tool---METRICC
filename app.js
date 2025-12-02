@@ -107,6 +107,9 @@ const KB = {
   },
 };
 
+// Track currently selected symptoms on the canvas
+const selectedSymptoms = new Set();
+
 function el(tag, attrs = {}, ...children) {
   const node = document.createElement(tag);
   Object.entries(attrs).forEach(([k, v]) => {
@@ -172,7 +175,7 @@ function setupCanvas() {
     const symptom = e.dataTransfer.getData("text/plain");
     if (!symptom) return;
     addToCanvas(symptom);
-    renderSieve(symptom);
+    renderAllSieve();
   });
 }
 
@@ -180,41 +183,70 @@ function addToCanvas(symptom) {
   const empty = document.querySelector(".canvas-empty");
   if (empty) empty.remove();
   const chips = document.getElementById("chips");
-  const chip = el("div", { class: "chip" }, symptom);
-  chips.appendChild(chip);
+  if (!selectedSymptoms.has(symptom)) {
+    selectedSymptoms.add(symptom);
+    const chip = el("div", { class: "chip" }, symptom);
+    chips.appendChild(chip);
+  }
 }
 
-function renderSieve(symptom) {
-  const results = document.getElementById("results");
-  const empty = results.querySelector(".results-empty");
-  if (empty) empty.remove();
-
-  results.setAttribute("aria-busy", "true");
-
-  const data = KB[symptom] || {};
+function buildSieveCard(title, data) {
   const card = el("article", { class: "sieve-card" });
-
   const header = el(
     "div",
     { class: "sieve-header" },
-    el("h3", {}, `${symptom}`),
+    el("h3", {}, title),
     el("div", { class: "sieve-badge", title: "Abridged surgical sieve" }, "⭐ METRICC")
   );
-
   const cats = el("div", { class: "category-list" });
   ORDER.forEach((cat) => {
-    const items = data[cat] || [];
-    const list = el(
-      "ul",
-      {},
-      ...items.map((i) => el("li", {}, i))
-    );
+    const uniq = Array.from(new Set((data[cat] || []).filter(Boolean)));
+    const list = el("ul", {}, ...uniq.map((i) => el("li", {}, i)));
     cats.appendChild(el("div", { class: "category" }, el("h4", {}, cat), list));
   });
-
   card.appendChild(header);
   card.appendChild(cats);
-  results.appendChild(card);
+  return card;
+}
+
+function renderAllSieve() {
+  const results = document.getElementById("results");
+  const empty = results.querySelector(".results-empty");
+  if (empty) empty.remove();
+  results.setAttribute("aria-busy", "true");
+  results.innerHTML = "";
+
+  // Combined first
+  if (selectedSymptoms.size > 0) {
+    const combined = {};
+    ORDER.forEach((cat) => (combined[cat] = []));
+    selectedSymptoms.forEach((sym) => {
+      const d = KB[sym] || {};
+      ORDER.forEach((cat) => {
+        const items = d[cat] || [];
+        combined[cat].push(...items);
+      });
+    });
+    const combinedCard = buildSieveCard(
+      `Combined (${Array.from(selectedSymptoms).join(", ")})`,
+      combined
+    );
+    results.appendChild(combinedCard);
+  }
+
+  // Then per symptom
+  selectedSymptoms.forEach((symptom) => {
+    const data = KB[symptom] || {};
+    const card = buildSieveCard(symptom, data);
+    results.appendChild(card);
+  });
+
+  if (selectedSymptoms.size === 0) {
+    results.appendChild(
+      el("div", { class: "results-empty" }, "Drop a symptom to see ⭐ METRICC suggestions here.")
+    );
+  }
+
   results.setAttribute("aria-busy", "false");
 }
 
@@ -232,6 +264,9 @@ function setupActions() {
     const results = document.getElementById("results");
     results.innerHTML = "";
     results.appendChild(el("div", { class: "results-empty" }, "Drop a symptom to see ⭐ METRICC suggestions here."));
+
+    // Reset state
+    selectedSymptoms.clear();
   });
 }
 
