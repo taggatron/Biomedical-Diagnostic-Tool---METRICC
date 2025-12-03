@@ -78,7 +78,9 @@ body {
   border-radius: 14px;
   min-height: 180px;
   padding: 12px;
-  background: linear-gradient(180deg, rgba(106,166,255,0.04), rgba(106,166,255,0.02));
+  /* opaque panel background so page gradient doesn't show through */
+  background: linear-gradient(180deg, rgba(18,23,53,0.98), rgba(18,23,53,0.98));
+  box-shadow: 0 8px 24px rgba(2,6,23,0.55);
   max-height: 420px;
 }
 .canvas.dragover { border-color: var(--brand); background: rgba(106,166,255,0.08); }
@@ -97,10 +99,12 @@ body {
 
 /* Results */
 .results {
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255,255,255,0.03);
   border-radius: 12px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+  /* opaque panel background */
+  background: linear-gradient(180deg, rgba(18,23,53,0.98), rgba(18,23,53,0.98));
   padding: 12px;
+  box-shadow: 0 8px 22px rgba(2,6,23,0.45);
 }
 .results-empty { color: var(--muted); padding: 8px; }
 
@@ -109,9 +113,11 @@ body {
   margin-top: 12px;
   border-radius: 12px;
   padding: 12px;
-  background: rgba(255,255,255,0.01);
-  border: 1px solid var(--border);
+  /* opaque panel color so the page gradient doesn't bleed in */
+  background: linear-gradient(180deg, rgba(18,23,53,0.98), rgba(18,23,53,0.98));
+  border: 1px solid rgba(255,255,255,0.03);
   align-self: start;
+  box-shadow: 0 8px 20px rgba(2,6,23,0.5);
 }
 .body-figure svg { display: block; margin: 0 auto; width: 100%; height: auto; max-width: 320px; }
 .organ { opacity: 0.55; transition: opacity 220ms ease, filter 220ms ease, transform 220ms ease; transform-origin: center; }
