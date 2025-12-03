@@ -155,6 +155,9 @@ const KB = {
 // Track currently selected symptoms on the canvas
 const selectedSymptoms = new Set();
 
+// Flag: whether to show individual symptom METRICC cards
+let showIndividual = false;
+
 // Rules to enrich the combined card when certain symptom combinations occur
 const COMBO_RULES = [
   {
@@ -401,12 +404,14 @@ function renderAllSieve() {
     results.appendChild(combinedCard);
   }
 
-  // Then per symptom
-  selectedSymptoms.forEach((symptom) => {
-    const data = KB[symptom] || {};
-    const card = buildSieveCard(symptom, data);
-    results.appendChild(card);
-  });
+  // Then per symptom (only if the user has opted to view individual METRICC cards)
+  if (showIndividual) {
+    selectedSymptoms.forEach((symptom) => {
+      const data = KB[symptom] || {};
+      const card = buildSieveCard(symptom, data);
+      results.appendChild(card);
+    });
+  }
 
   if (selectedSymptoms.size === 0) {
     results.appendChild(
@@ -422,6 +427,19 @@ function renderAllSieve() {
 
 function setupActions() {
   const clear = document.getElementById("clear-all");
+  const toggle = document.getElementById("toggle-individual");
+  if (toggle) {
+    // initialize label according to default state
+    toggle.textContent = showIndividual ? "Hide Individual METRICCs" : "Show Individual METRICCs";
+    toggle.setAttribute('aria-pressed', String(showIndividual));
+    toggle.addEventListener('click', () => {
+      showIndividual = !showIndividual;
+      toggle.textContent = showIndividual ? "Hide Individual METRICCs" : "Show Individual METRICCs";
+      toggle.setAttribute('aria-pressed', String(showIndividual));
+      // re-render results to show/hide individual cards
+      renderAllSieve();
+    });
+  }
   clear.addEventListener("click", () => {
     // Reset chips
     const canvas = document.getElementById("canvas");
@@ -441,6 +459,12 @@ function setupActions() {
     const svg = document.getElementById("body-svg");
     if (svg) {
       svg.querySelectorAll('.organ').forEach((g) => g.classList.remove('glow'));
+    }
+    // ensure results reflect current toggle state
+    const toggleBtn = document.getElementById('toggle-individual');
+    if (toggleBtn) {
+      toggleBtn.textContent = showIndividual ? "Hide Individual METRICCs" : "Show Individual METRICCs";
+      toggleBtn.setAttribute('aria-pressed', String(showIndividual));
     }
   });
 }
