@@ -218,6 +218,43 @@ const COMBO_RULES = [
   },
 ];
 
+// Map symptoms to organ element IDs in the SVG
+const ORGAN_MAP = {
+  "Chest Pain": ["organ-heart"],
+  "Cough": ["organ-lungs"],
+  "Shortness of Breath": ["organ-lungs", "organ-heart"],
+  "Abdominal Pain": ["organ-stomach", "organ-liver"],
+  "Nausea/Vomiting": ["organ-stomach", "organ-liver"],
+  "Headache": ["organ-brain"],
+  "Seizures": ["organ-brain"],
+  "Diarrhea": ["organ-stomach"],
+  "Rash": [],
+  "Fever": [],
+  "Fatigue": [],
+  "Sudden Weight Loss": ["organ-lungs", "organ-liver"],
+  "Swollen Ankles": ["organ-heart", "organ-kidneys", "organ-liver"],
+  "Itchy Skin": ["organ-liver"],
+  "Painful Urination": ["organ-bladder", "organ-kidneys"],
+  "Seizures": ["organ-brain"],
+};
+
+function updateOrganHighlights() {
+  const highlighted = new Set();
+  selectedSymptoms.forEach((sym) => {
+    const ids = ORGAN_MAP[sym] || [];
+    ids.forEach((id) => highlighted.add(id));
+  });
+
+  // Find all organ elements and toggle .glow
+  const svg = document.getElementById("body-svg");
+  if (!svg) return;
+  const organs = svg.querySelectorAll('.organ');
+  organs.forEach((g) => {
+    if (highlighted.has(g.id)) g.classList.add('glow');
+    else g.classList.remove('glow');
+  });
+}
+
 function el(tag, attrs = {}, ...children) {
   const node = document.createElement(tag);
   Object.entries(attrs).forEach(([k, v]) => {
@@ -378,6 +415,9 @@ function renderAllSieve() {
   }
 
   results.setAttribute("aria-busy", "false");
+
+  // Update organ highlights in the body SVG
+  updateOrganHighlights();
 }
 
 function setupActions() {
@@ -397,6 +437,11 @@ function setupActions() {
 
     // Reset state
     selectedSymptoms.clear();
+    // Clear organ highlights
+    const svg = document.getElementById("body-svg");
+    if (svg) {
+      svg.querySelectorAll('.organ').forEach((g) => g.classList.remove('glow'));
+    }
   });
 }
 

@@ -26,6 +26,77 @@
           </div>
         </div>
 
+        <!-- Body SVG: highlights organs when matching symptoms are selected -->
+        <figure class="body-figure" aria-hidden="false">
+          <svg id="body-svg" viewBox="0 0 300 700" width="320" role="img" aria-label="Human body outline with organs">
+            <defs>
+              <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- More realistic human outline (stylised) -->
+            <g id="outline" fill="none" stroke="#9aa3c2" stroke-width="2">
+              <!-- Head -->
+              <ellipse cx="150" cy="55" rx="34" ry="36" />
+              <!-- Neck -->
+              <path d="M142 88 L158 88 L158 100 L142 100 Z" />
+              <!-- Shoulders -->
+              <path d="M90 105 C110 100, 130 102, 150 110 C170 102, 190 100, 210 105" />
+              <!-- Torso -->
+              <path d="M110 115 C95 150, 95 220, 110 300 C120 350, 180 350, 190 300 C205 220, 205 150, 190 115 Z" />
+              <!-- Arms -->
+              <path d="M90 115 C60 140, 60 200, 90 240" />
+              <path d="M210 115 C240 140, 240 200, 210 240" />
+              <!-- Legs -->
+              <path d="M125 300 C120 380, 120 460, 135 540" />
+              <path d="M175 300 C180 380, 180 460, 165 540" />
+            </g>
+
+            <!-- Organs: positioned within the outline; IDs used by app.js -->
+            <!-- Brain -->
+            <g id="organ-brain" class="organ">
+              <ellipse cx="150" cy="55" rx="26" ry="18" fill="#a07ed6" />
+            </g>
+
+            <!-- Lungs -->
+            <g id="organ-lungs" class="organ">
+              <path d="M120 120 C110 150, 110 200, 130 240 C150 220, 170 220, 190 240 C210 200, 210 150, 200 120 C170 140, 130 140, 120 120 Z" fill="#3a9abf" />
+            </g>
+
+            <!-- Heart -->
+            <g id="organ-heart" class="organ">
+              <path d="M146 170 C140 156, 128 152, 120 160 C110 170, 120 190, 140 200 C160 190, 170 170, 146 170 Z" fill="#2d6a9f" />
+            </g>
+
+            <!-- Liver -->
+            <g id="organ-liver" class="organ">
+              <path d="M110 220 C130 210, 190 205, 230 225 C210 245, 150 240, 110 230 Z" fill="#b86b3b" />
+            </g>
+
+            <!-- Stomach -->
+            <g id="organ-stomach" class="organ">
+              <path d="M150 240 C140 260, 130 280, 150 295 C170 280, 170 260, 150 240 Z" fill="#c96b8b" />
+            </g>
+
+            <!-- Kidneys -->
+            <g id="organ-kidneys" class="organ">
+              <path d="M120 300 C110 290, 100 290, 95 300 C95 320, 115 330, 120 320 Z" fill="#6aa46a" />
+              <path d="M190 300 C200 290, 210 290, 215 300 C215 320, 195 330, 190 320 Z" fill="#6aa46a" />
+            </g>
+
+            <!-- Bladder -->
+            <g id="organ-bladder" class="organ">
+              <ellipse cx="150" cy="500" rx="22" ry="12" fill="#f2c94c" />
+            </g>
+          </svg>
+          <figcaption class="assist-text">Body map: organs glow when related symptoms are selected.</figcaption>
+        </figure>
+
         <div class="actions">
           <button id="clear-all" class="btn secondary" type="button" title="Clear canvas and results">Clear All</button>
         </div>
